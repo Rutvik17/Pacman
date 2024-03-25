@@ -46,6 +46,24 @@ class Player {
     }
 }
 
+class Pellet {
+    constructor({ position }) {
+        this.position = position;
+        this.radius = 3;
+    }
+
+    draw() {
+        context.beginPath();
+        context.arc(this.position.x, 
+            this.position.y, 
+            this.radius,
+            0, Math.PI * 2)
+        context.fillStyle = 'white';
+        context.fill()
+        context.closePath();
+    }
+}
+
 let lastKey = '';
 
 const map = [
@@ -79,6 +97,7 @@ const keys = {
     },
 }
 
+const pellets = [];
 const boundaries = [];
 const player = new Player({
     position: {
@@ -103,8 +122,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeHorizontal.png')
                     }))
@@ -113,8 +132,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeVertical.png')
                     }))
@@ -123,8 +142,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeCorner1.png')
                     }))
@@ -133,8 +152,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeCorner2.png')
                     }))
@@ -143,8 +162,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeCorner3.png')
                     }))
@@ -153,8 +172,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/pipeCorner4.png')
                     }))
@@ -163,8 +182,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: Boundary.width * j,
-                        y: Boundary.height * i
+                            x: Boundary.width * j,
+                            y: Boundary.height * i
                         },
                         image: createImage('./img/block.png')
                     }))
@@ -173,8 +192,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/capLeft.png')
                     }))
@@ -183,8 +202,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/capRight.png')
                     }))
@@ -193,8 +212,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/capBottom.png')
                     }))
@@ -203,8 +222,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/capTop.png')
                     }))
@@ -213,8 +232,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/pipeCross.png')
                     }))
@@ -223,8 +242,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         color: 'blue',
                         image: createImage('./img/pipeConnectorTop.png')
@@ -234,8 +253,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         color: 'blue',
                         image: createImage('./img/pipeConnectorRight.png')
@@ -245,8 +264,8 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         color: 'blue',
                         image: createImage('./img/pipeConnectorBottom.png')
@@ -256,13 +275,19 @@ map.forEach((row, i) => {
                 boundaries.push(
                     new Boundary({
                         position: {
-                        x: j * Boundary.width,
-                        y: i * Boundary.height
+                            x: j * Boundary.width,
+                            y: i * Boundary.height
                         },
                         image: createImage('./img/pipeConnectorLeft.png')
-                        }))
+                    }))
                 break
             case '.':
+                pellets.push(new Pellet({
+                    position: {
+                        x: j * Boundary.width + Boundary.width / 2,
+                        y: i * Boundary.height + Boundary.height / 2
+                    }
+                }))
                 break
         }
     });
@@ -335,6 +360,10 @@ function animate() {
             }
         }
     }
+
+    pellets.forEach(pellet => {
+        pellet.draw();
+    });
 
     boundaries.forEach(boundary => {
         boundary.draw();
