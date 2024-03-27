@@ -1,6 +1,8 @@
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 
+const scoreEl = document.querySelector('#scoreEl');
+
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -65,6 +67,8 @@ class Pellet {
 }
 
 let lastKey = '';
+
+let score = 0;
 
 const map = [
     ['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
@@ -368,6 +372,8 @@ function animate() {
         if (Math.hypot(pellet.position.x - player.position.x,
             pellet.position.y - player.position.y) < player.radius + pellet.radius) {
                 pellets.splice(i, 1);
+                score+=10;
+                scoreEl.innerHTML = score;
             }
     }
 
