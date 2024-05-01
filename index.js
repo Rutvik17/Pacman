@@ -28,23 +28,36 @@ class Player {
         this.position = position;
         this.velocity = velocity;
         this.radius = 15;
+        this.radians = 0.75;
+        this.openRate = 0.02;
+        this.rotation = 0;
     }
 
     draw() {
+        context.save();
+        context.translate(this.position.x, this.position.y);
+        context.rotate(this.rotation);
+        context.translate(-this.position.x, -this.position.y);
         context.beginPath();
         context.arc(this.position.x, 
             this.position.y, 
             this.radius,
-            0, Math.PI * 2)
+            this.radians, Math.PI * 2 - this.radians)
+        context.lineTo(this.position.x, this.position.y)
         context.fillStyle = 'yellow';
         context.fill()
         context.closePath();
+        context.restore();
     }
 
     update() {
         this.draw();
         this.position.x += this.velocity.x;
         this.position.y += this.velocity.y;
+        if (this.radians < 0 || this.radians > 0.75) {
+            this.openRate = -this.openRate;
+        }
+        this.radians += this.openRate;
     }
 }
 
@@ -419,25 +432,25 @@ function animate() {
             const boundary = boundaries[i];
             if (circleCollidesWithRectangle({circle: {...player, velocity: {
                 x: 0,
-                y: -5
+                y: -2
             }}, rectangle: boundary})) {
                 player.velocity.y = 0;
                 break;
             } else {
-                player.velocity.y = -5;
+                player.velocity.y = -2;
             }
         }
     } else if (keys.a.pressed  && lastKey == 'a') {
         for (let i = 0; i < boundaries.length; i++) {
             const boundary = boundaries[i];
             if (circleCollidesWithRectangle({circle: {...player, velocity: {
-                x: -5,
+                x: -2,
                 y: 0
             }}, rectangle: boundary})) {
                 player.velocity.x = 0;
                 break;
             } else {
-                player.velocity.x = -5;
+                player.velocity.x = -2;
             }
         }
     } else if (keys.s.pressed  && lastKey == 's') {
@@ -445,27 +458,34 @@ function animate() {
             const boundary = boundaries[i];
             if (circleCollidesWithRectangle({circle: {...player, velocity: {
                 x: 0,
-                y: 5
+                y: 2
             }}, rectangle: boundary})) {
                 player.velocity.y = 0;
                 break;
             } else {
-                player.velocity.y = 5;
+                player.velocity.y = 2;
             }
         }
     } else if (keys.d.pressed  && lastKey == 'd') {
         for (let i = 0; i < boundaries.length; i++) {
             const boundary = boundaries[i];
             if (circleCollidesWithRectangle({circle: {...player, velocity: {
-                x: 5,
+                x: 2,
                 y: 0
             }}, rectangle: boundary})) {
                 player.velocity.x = 0;
                 break;
             } else {
-                player.velocity.x = 5;
+                player.velocity.x = 2;
             }
         }
+    }
+
+    console.log(pellets.length)
+    // win condition 
+    if (pellets.length === 0) {
+        alert('victory');
+        cancelAnimationFrame(animationId);
     }
 
     for (let i = ghosts.length - 1; 0 <= i; i--) {
@@ -505,13 +525,7 @@ function animate() {
         }
     }
 
-    // win condition 
-    if (pellets.length === 0) {
-        alert('victory');
-        cancelAnimationFrame(animationId);
-    }
-
-    for (let i = pellets.length - 1; 0 < i; i--) {
+    for (let i = pellets.length - 1; 0 <= i; i--) {
         const pellet = pellets[i];
         pellet.draw();
 
@@ -639,6 +653,16 @@ function animate() {
         }
 
     });
+
+    if (player.velocity.x > 0) {
+        player.rotation = 0;
+    } else if (player.velocity.x < 0) {
+        player.rotation = Math.PI
+    } else if (player.velocity.y > 0) {
+        player.rotation = Math.PI / 2
+    } else if (player.velocity.y < 0) {
+        player.rotation = Math.PI * 1.5
+    }
 }
 
 animate();
