@@ -505,6 +505,12 @@ function animate() {
         }
     }
 
+    // win condition 
+    if (pellets.length === 0) {
+        alert('victory');
+        cancelAnimationFrame(animationId);
+    }
+
     for (let i = pellets.length - 1; 0 < i; i--) {
         const pellet = pellets[i];
         pellet.draw();
