@@ -59,6 +59,7 @@ class Ghost {
         this.color = color;
         this.prevCollisions = [];
         this.speed = 1;
+        this.scared = false;
     }
 
     draw() {
@@ -67,7 +68,7 @@ class Ghost {
             this.position.y, 
             this.radius,
             0, Math.PI * 2)
-        context.fillStyle = this.color;
+        context.fillStyle = this.scared ? 'purple' : this.color;
         context.fill()
         context.closePath();
     }
@@ -97,19 +98,37 @@ class Pellet {
     }
 }
 
+class PowerUp {
+    constructor({ position }) {
+        this.position = position;
+        this.radius = 8;
+    }
+
+    draw() {
+        context.beginPath();
+        context.arc(this.position.x, 
+            this.position.y, 
+            this.radius,
+            0, Math.PI * 2)
+        context.fillStyle = 'orange';
+        context.fill()
+        context.closePath();
+    }
+}
+
 let lastKey = '';
 
 let score = 0;
 
 const map = [
     ['1', '-', '-', '-', '-', '-', '-', '-', '-', '-', '2'],
-    ['|', '.', '.', '.', '.', '.', '.', '.', '.', '.', '|'],
+    ['|', '.', '.', '.', '.', 'p', '.', '.', '.', '.', '|'],
     ['|', '.', 'b', '.', '[', '7', ']', '.', 'b', '.', '|'],
     ['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
     ['|', '.', '[', ']', '.', '.', '.', '[', ']', '.', '|'],
-    ['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
+    ['|', '.', '.', '.', '.', '^', 'p', '.', '.', '.', '|'],
     ['|', '.', 'b', '.', '[', '+', ']', '.', 'b', '.', '|'],
-    ['|', '.', '.', '.', '.', '_', '.', '.', '.', '.', '|'],
+    ['|', '.', '.', 'p', '.', '_', '.', '.', '.', '.', '|'],
     ['|', '.', '[', ']', '.', '.', '.', '[', ']', '.', '|'],
     ['|', '.', '.', '.', '.', '^', '.', '.', '.', '.', '|'],
     ['|', '.', 'b', '.', '[', '5', ']', '.', 'b', '.', '|'],
@@ -134,6 +153,7 @@ const keys = {
 
 const pellets = [];
 const boundaries = [];
+const powerUps = [];
 
 const ghosts = [
     new Ghost({
@@ -360,6 +380,15 @@ map.forEach((row, i) => {
                     }
                 }))
                 break
+            case 'p':
+                powerUps.push(
+                    new PowerUp({
+                        position: {
+                            x: j * Boundary.width + Boundary.width / 2,
+                            y: i * Boundary.height + Boundary.height / 2
+                        }
+                    })
+                )
         }
     });
 });
@@ -439,6 +468,43 @@ function animate() {
         }
     }
 
+    for (let i = ghosts.length - 1; 0 <= i; i--) {
+        const ghost = ghosts[i];
+
+        // detect collision between ghosts and player
+        if (Math.hypot(ghost.position.x - player.position.x, 
+            ghost.position.y - player.position.y) < 
+            player.radius + ghost.radius) {
+                if (ghost.scared) {
+                    ghosts.splice(i, 1)
+                } else {
+                    cancelAnimationFrame(animationId);
+                    alert('defeat')
+                }
+        }
+    }
+
+    // power ups go
+    for (let i = powerUps.length - 1; 0 <= i; i--) {
+        const powerUp = powerUps[i];
+        powerUp.draw();
+
+        // player collide with power up
+        if (Math.hypot(powerUp.position.x - player.position.x, 
+            powerUp.position.y - player.position.y) < 
+            player.radius + powerUp.radius) {
+            powerUps.splice(i, 1);
+
+           // make ghosts scared
+           ghosts.forEach(ghost => {
+            ghost.scared = true;
+            setTimeout(() => {
+                ghost.scared = false;
+            }, 5000)
+           })
+        }
+    }
+
     for (let i = pellets.length - 1; 0 < i; i--) {
         const pellet = pellets[i];
         pellet.draw();
@@ -462,13 +528,6 @@ function animate() {
 
     ghosts.forEach(ghost => {
         ghost.update();
-
-        if (Math.hypot(ghost.position.x - player.position.x, 
-                ghost.position.y - player.position.y) < 
-                player.radius + ghost.radius) {
-            cancelAnimationFrame(animationId);
-            alert('defeat')
-        }
 
         const collisions = [];
         boundaries.forEach(boundary => {
