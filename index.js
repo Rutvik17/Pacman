@@ -481,7 +481,6 @@ function animate() {
         }
     }
 
-    console.log(pellets.length)
     // win condition 
     if (pellets.length === 0) {
         alert('victory');
